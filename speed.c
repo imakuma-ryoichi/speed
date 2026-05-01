@@ -132,7 +132,7 @@ int main(void){
             (number[p2][bordnumber2]+1!=number[p2][e]|| number[p2][e]==0) &&
             (number[p2][bordnumber2]+1!=number[p2][f]|| number[p2][f]==0) &&
             (number[p2][bordnumber2]+1!=number[p2][g]|| number[p2][g]==0) &&
-            (number[p2][bordnumber2]+1!=number[p2][h]|| number[p2][h]==0) { 
+            (number[p2][bordnumber2]+1!=number[p2][h]|| number[p2][h]==0)) { 
                 total1+=1;
                 total2+=1;
                 if(total1>25){//0~25は実態がある ここのifがないときに動いた
@@ -346,8 +346,8 @@ int main(void){
                 }
             }
             }
-        }
     }
+}
 //よく考えたら開いているところに入れるから関数８ついるね
 void show(int n){
     switch(n){
