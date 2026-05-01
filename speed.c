@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include <unistd.h>//即時入力＆待機時間用
 #include <termios.h>//即時入力用
-#include <time.h>
+#include <time.h>//0で判定とペナルティ実装
+
+
 #define BLACK 0
 #define RED 1
 #define KURO 30
@@ -26,11 +28,12 @@ int aa=0,bb=0;
 void marker(int);
 void show(int);
 void yamahuda(int,int,int,int);
-void card(int,int,int,int,int,int,int,int);//スピードは四枚並べるのでmarkは一つあれば使いまわせるわけではない
+//スピードは四枚並べるのでmarkは一つあれば使いまわせるわけではない
 // なぜなら、赤、黒にはスートが二つずつありそれを判別できないため不可つまり八ついる
 //なおmark numberを４×13にすればいけるがランダムが大変になるため不可いや、赤か黒か判別できればよいから５つか
 //というか内部処理したら一つずつでよくね？
 int main(void){
+    void card(int,int,int,int,int,int,int,int);
     for(int i=1;i<5;i++){//中身359.475あたりに使用
         for(int j=1;j<14;j++){
             if(aa<26){
@@ -210,14 +213,15 @@ int main(void){
             }else{
                 char k = getch();
             if(k=='1'){
-                if( number[p1][bordnumber1]-1==number[p1][a] ||
-                    number[p1][bordnumber1]+1==number[p1][a] ){
+                if(number[p1][a]!=0){
+                    if( number[p1][bordnumber1]-1==number[p1][a] ||
+                        number[p1][bordnumber1]+1==number[p1][a])  {
                         mark[p1][bordmark1]=mark[p1][a];
                         number[p1][bordmark1]=number[p1][a];
                         total1+=1;
                         a=total1;        
-                }else if(   number[p2][bordnumber2]-1==number[p1][a] ||
-                            number[p2][bordnumber2]+1==number[p1][a] ){
+                    }else if(   number[p2][bordnumber2]-1==number[p1][a] ||
+                                number[p2][bordnumber2]+1==number[p1][a])  {
                                 mark[p2][bordmark2]=mark[p1][a];
                                 number[p2][bordmark2]=number[p1][a];
                                 total1+=1;
@@ -225,67 +229,83 @@ int main(void){
                 }else{
                     //ペナルティ案
                 }
+            }else{
+                //ペナルティ案
+            }
             }
             if(k=='2'){
-                if( number[p1][bordnumber1]-1==number[p1][b] ||
-                    number[p1][bordnumber1]+1==number[p1][b] ){
+                if(number[p1][a]!=0){
+                    if( number[p1][bordnumber1]-1==number[p1][b] ||
+                        number[p1][bordnumber1]+1==number[p1][b] ) {
                         mark[p1][bordmark1]=mark[p1][b];
                         number[p1][bordmark1]=number[p1][b];
                         total1+=1;
                         b=total1;        
-                }else if(   number[p2][bordnumber2]-1==number[p1][b] ||
-                            number[p2][bordnumber2]+1==number[p1][b] ){
+                    }else if(   number[p2][bordnumber2]-1==number[p1][b] ||
+                                number[p2][bordnumber2]+1==number[p1][b] ){
                                 mark[p2][bordmark2]=mark[p1][b];
                                 number[p2][bordmark2]=number[p1][b];
                                 total1+=1;
                                 b=total1;
-                }else{
+                    }else{
                     //ペナルティ案
-                }
+                    }
+                }else{
+                //ペナルティ案
+            }
             }
             if(k=='3'){
-                if( number[p1][bordnumber1]-1==number[p1][c] ||
-                    number[p1][bordnumber1]+1==number[p1][c] ){
+                if(number[p1][a]!=0){
+                    if( number[p1][bordnumber1]-1==number[p1][c] ||
+                        number[p1][bordnumber1]+1==number[p1][c] ){
                         mark[p1][bordmark1]=mark[p1][c];
                         number[p1][bordmark1]=number[p1][c];
                         total1+=1;
                         c=total1;        
-                }else if(   number[p2][bordnumber2]-1==number[p1][c] ||
-                            number[p2][bordnumber2]+1==number[p1][c] ){
+                    }else if(   number[p2][bordnumber2]-1==number[p1][c] ||
+                                number[p2][bordnumber2]+1==number[p1][c] ){
                                 mark[p2][bordmark2]=mark[p1][c];
                                 number[p2][bordmark2]=number[p1][c];
                                 total1+=1;
                                 c=total1;
-                }else{
+                    }else{
                     //ペナルティ案
-                }
+                    }
+                }else{
+                //ペナルティ案
+            }
             }
             if(k=='4'){
-                if( number[p1][bordnumber1]-1==number[p1][d] ||
-                    number[p1][bordnumber1]+1==number[p1][d] ){
+                if(number[p1][a]!=0){
+                    if( number[p1][bordnumber1]-1==number[p1][d] ||
+                        number[p1][bordnumber1]+1==number[p1][d] ){
                         mark[p1][bordmark1]=mark[p1][d];
                         number[p1][bordmark1]=number[p1][d];
                         total1+=1;
                         d=total1;        
-                }else if(   number[p2][bordnumber2]-1==number[p1][d] ||
+                    }else if(   number[p2][bordnumber2]-1==number[p1][d] ||
                             number[p2][bordnumber2]+1==number[p1][d] ){
                                 mark[p2][bordmark2]=mark[p1][d];
                                 number[p2][bordmark2]=number[p1][d];
                                 total1+=1;
                                 d=total1;
-                }else{
+                    }else{
                     //ペナルティ案
+                    }
+                }else{
+                //ペナルティ案
                 }
             }
             if(k=='7'){
-                if( number[p1][bordnumber1]-1==number[p2][e] ||
-                    number[p1][bordnumber1]+1==number[p2][e] ){
+                if(number[p1][a]!=0){
+                    if( number[p1][bordnumber1]-1==number[p2][e] ||
+                        number[p1][bordnumber1]+1==number[p2][e] ){
                         mark[p1][bordmark1]=mark[p2][e];
                         number[p1][bordmark1]=number[p2][e];
                         total2+=1;
                         e=total2;        
-                }else if(   number[p2][bordnumber2]-1==number[p2][e] ||
-                            number[p2][bordnumber2]+1==number[p2][e] ){
+                    }else if(   number[p2][bordnumber2]-1==number[p2][e] ||
+                                number[p2][bordnumber2]+1==number[p2][e] ){
                                 mark[p2][bordmark2]=mark[p2][e];
                                 number[p2][bordmark2]=number[p2][e];
                                 total2+=1;
@@ -293,57 +313,72 @@ int main(void){
                 }else{
                     //ペナルティ案
                 }
+                }else{
+                //ペナルティ案
+            }
             }
             if(k=='8'){
-                if( number[p1][bordnumber1]-1==number[p2][f] ||
-                    number[p1][bordnumber1]+1==number[p2][f] ){
+                if(number[p1][a]!=0){
+                    if( number[p1][bordnumber1]-1==number[p2][f] ||
+                        number[p1][bordnumber1]+1==number[p2][f] ){
                         mark[p1][bordmark1]=mark[p2][f];
                         number[p1][bordmark1]=number[p2][f];
                         total2+=1;
                         f=total2;        
-                }else if(   number[p2][bordnumber2]-1==number[p2][f] ||
-                            number[p2][bordnumber2]+1==number[p2][f] ){
+                    }else if(   number[p2][bordnumber2]-1==number[p2][f] ||
+                                number[p2][bordnumber2]+1==number[p2][f] ){
                                 mark[p2][bordmark2]=mark[p2][f];
                                 number[p2][bordmark2]=number[p2][f];
                                 total2+=1;
                                 f=total2;
-                }else{
+                    }else{
                     //ペナルティ案
-                }
+                    }
+                }else{
+                //ペナルティ案
+            }
             }
             if(k=='9'){
-                if( number[p1][bordnumber1]-1==number[p2][g] ||
-                    number[p1][bordnumber1]+1==number[p2][g] ){
+                if(number[p1][a]!=0){
+                    if( number[p1][bordnumber1]-1==number[p2][g] ||
+                        number[p1][bordnumber1]+1==number[p2][g] ){
                         mark[p1][bordmark1]=mark[p2][g];
                         number[p1][bordmark1]=number[p2][g];
                         total2+=1;
                         g=total2;        
-                }else if(   number[p2][bordnumber2]-1==number[p2][g] ||
-                            number[p2][bordnumber2]+1==number[p2][g] ){
+                    }else if(   number[p2][bordnumber2]-1==number[p2][g] ||
+                                number[p2][bordnumber2]+1==number[p2][g] ){
                                 mark[p2][bordmark2]=mark[p2][g];
                                 number[p2][bordmark2]=number[p2][g];
                                 total2+=1;
                                 g=total2;
-                }else{
+                    }else{
                     //ペナルティ案
-                }
+                    }
+                    }else{
+                //ペナルティ案
+            }
             }
             if(k=='0'){
-                if( number[p1][bordnumber1]-1==number[p2][h] ||
-                    number[p1][bordnumber1]+1==number[p2][h] ){
+                if(number[p1][a]!=0){
+                    if( number[p1][bordnumber1]-1==number[p2][h] ||
+                        number[p1][bordnumber1]+1==number[p2][h] ){
                         mark[p1][bordmark1]=mark[p2][h];
                         number[p1][bordmark1]=number[p2][h];
                         total2+=1;
                         h=total2;        
-                }else if(   number[p2][bordnumber2]-1==number[p2][h] ||
+                    }else if(   number[p2][bordnumber2]-1==number[p2][h] ||
                             number[p2][bordnumber2]+1==number[p2][h] ){
                                 mark[p2][bordmark2]=mark[p2][h];
                                 number[p2][bordmark2]=number[p2][h];
                                 total2+=1;
                                 h=total2;
-                }else{
+                    }else{
                     //ペナルティ案
-                }
+                    }
+                }else{
+                //ペナルティ案
+            }
             }
             }
     }
