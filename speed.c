@@ -13,9 +13,9 @@
 #define KAIGYOU 2
 
 char getch(void);   
-char *suto[4]={"\x1b[47;30m♣","\x1b[47;30m♠","\x1b[47;31m♦","\x1b[47;31m♥",}; //マーク分け
-int number[2][29]={0};//処理的に箱は
-int mark[2][29]={0};
+char *suto[5]={"\x1b[47;37m ","\x1b[47;30m♣","\x1b[47;30m♠","\x1b[47;31m♦","\x1b[47;31m♥",}; //マーク分け
+int number[2][30]={0};//処理的に箱は
+int mark[2][30]={0};
 int nyuryoku[6]={1,4,7,0,1,4};
 int  p1,p2;//プレイヤー識別子
 char player[10];
@@ -31,7 +31,7 @@ void card(int,int,int,int,int,int,int,int);//スピードは四枚並べるの�
 //なおmark numberを４×13にすればいけるがランダムが大変になるため不可いや、赤か黒か判別できればよいから５つか
 //というか内部処理したら一つずつでよくね？
 int main(void){
-    for(int i=0;i<4;i++){//中身359.475あたりに使用
+    for(int i=1;i<5;i++){//中身359.475あたりに使用
         for(int j=1;j<14;j++){
             if(aa<26){
                 number[BLACK][aa]=j;
@@ -93,38 +93,46 @@ int main(void){
         card(mark[p1][a],number[p1][a],mark[p1][b],number[p1][b],mark[p1][c],number[p1][c],mark[p1][d],number[p1][d]);
         yamahuda(mark[p1][bordmark1],number[p1][bordnumber1],mark[p2][bordmark2],number[p2][bordnumber2]);
         card(mark[p2][e],number[p2][e],mark[p2][f],number[p2][f],mark[p2][g],number[p2][g],mark[p2][h],number[p2][h]);
-        if( number[p1][bordnumber1]-1!=number[p1][a]&&
-            number[p1][bordnumber1]-1!=number[p1][b]&&
-            number[p1][bordnumber1]-1!=number[p1][c]&&
-            number[p1][bordnumber1]-1!=number[p1][d]&&
-            number[p1][bordnumber1]+1!=number[p1][a]&&
-            number[p1][bordnumber1]+1!=number[p1][b]&&
-            number[p1][bordnumber1]+1!=number[p1][c]&&
-            number[p1][bordnumber1]+1!=number[p1][d]&&
-            number[p1][bordnumber1]-1!=number[p2][e]&&
-            number[p1][bordnumber1]-1!=number[p2][f]&&
-            number[p1][bordnumber1]-1!=number[p2][g]&&
-            number[p1][bordnumber1]-1!=number[p2][h]&&
-            number[p1][bordnumber1]+1!=number[p2][e]&&
-            number[p1][bordnumber1]+1!=number[p2][f]&&
-            number[p1][bordnumber1]+1!=number[p2][g]&&
-            number[p1][bordnumber1]+1!=number[p2][h]&&
-            number[p2][bordnumber2]-1!=number[p1][a]&&
-            number[p2][bordnumber2]-1!=number[p1][b]&&
-            number[p2][bordnumber2]-1!=number[p1][c]&&
-            number[p2][bordnumber2]-1!=number[p1][d]&&
-            number[p2][bordnumber2]+1!=number[p1][a]&&
-            number[p2][bordnumber2]+1!=number[p1][b]&&
-            number[p2][bordnumber2]+1!=number[p1][c]&&
-            number[p2][bordnumber2]+1!=number[p1][d]&&
-            number[p2][bordnumber2]-1!=number[p2][e]&&
-            number[p2][bordnumber2]-1!=number[p2][f]&&
-            number[p2][bordnumber2]-1!=number[p2][g]&&
-            number[p2][bordnumber2]-1!=number[p2][h]&&
-            number[p2][bordnumber2]+1!=number[p2][e]&&
-            number[p2][bordnumber2]+1!=number[p2][f]&&
-            number[p2][bordnumber2]+1!=number[p2][g]&&
-            number[p2][bordnumber2]+1!=number[p2][h]){
+        if(total1>28){
+            printf("プレイヤー1の勝ち");
+            return 0;
+            }
+        if(total2>28){
+            printf("プレイヤー２の勝ち");
+            return 0;
+        }
+        if( (number[p1][bordnumber1]-1!=number[p1][a]|| number[p1][a]==0) &&
+            (number[p1][bordnumber1]-1!=number[p1][b]|| number[p1][b]==0) &&
+            (number[p1][bordnumber1]-1!=number[p1][c]|| number[p1][c]==0) &&
+            (number[p1][bordnumber1]-1!=number[p1][d]|| number[p1][d]==0) &&
+            (number[p1][bordnumber1]+1!=number[p1][a]|| number[p1][a]==0) &&
+            (number[p1][bordnumber1]+1!=number[p1][b]|| number[p1][b]==0) &&
+            (number[p1][bordnumber1]+1!=number[p1][c]|| number[p1][c]==0) &&
+            (number[p1][bordnumber1]+1!=number[p1][d]|| number[p1][d]==0) &&
+            (number[p1][bordnumber1]-1!=number[p2][e]|| number[p2][e]==0) &&
+            (number[p1][bordnumber1]-1!=number[p2][f]|| number[p2][f]==0) &&
+            (number[p1][bordnumber1]-1!=number[p2][g]|| number[p2][g]==0) &&
+            (number[p1][bordnumber1]-1!=number[p2][h]|| number[p2][h]==0) &&
+            (number[p1][bordnumber1]+1!=number[p2][e]|| number[p2][e]==0) &&
+            (number[p1][bordnumber1]+1!=number[p2][f]|| number[p2][f]==0) &&
+            (number[p1][bordnumber1]+1!=number[p2][g]|| number[p2][g]==0) &&
+            (number[p1][bordnumber1]+1!=number[p2][h]|| number[p2][h]==0) &&
+            (number[p2][bordnumber2]-1!=number[p1][a]|| number[p1][a]==0) &&
+            (number[p2][bordnumber2]-1!=number[p1][b]|| number[p1][b]==0) &&
+            (number[p2][bordnumber2]-1!=number[p1][c]|| number[p1][c]==0) &&
+            (number[p2][bordnumber2]-1!=number[p1][d]|| number[p1][d]==0) &&
+            (number[p2][bordnumber2]+1!=number[p1][a]|| number[p1][a]==0) &&
+            (number[p2][bordnumber2]+1!=number[p1][b]|| number[p1][b]==0) &&
+            (number[p2][bordnumber2]+1!=number[p1][c]|| number[p1][c]==0) &&
+            (number[p2][bordnumber2]+1!=number[p1][d]|| number[p1][d]==0) &&
+            (number[p2][bordnumber2]-1!=number[p2][e]|| number[p2][e]==0) &&
+            (number[p2][bordnumber2]-1!=number[p2][f]|| number[p2][f]==0) &&
+            (number[p2][bordnumber2]-1!=number[p2][g]|| number[p2][g]==0) &&
+            (number[p2][bordnumber2]-1!=number[p2][h]|| number[p2][h]==0) &&
+            (number[p2][bordnumber2]+1!=number[p2][e]|| number[p2][e]==0) &&
+            (number[p2][bordnumber2]+1!=number[p2][f]|| number[p2][f]==0) &&
+            (number[p2][bordnumber2]+1!=number[p2][g]|| number[p2][g]==0) &&
+            (number[p2][bordnumber2]+1!=number[p2][h]|| number[p2][h]==0) { 
                 total1+=1;
                 total2+=1;
                 if(total1>25){//0~25は実態がある ここのifがないときに動いた
@@ -162,28 +170,28 @@ int main(void){
                         while(1){//p2の場合 lをrにする
                             random2=rand()% 4;
                             if(random2==0 && e<26){
-                                mark[p1][bordmark2]=mark[p2][e];
-                                number[p1][bordnumber2]=number[p2][e];
-                                mark[p2][e]=mark[p2][total1];
-                                number[p2][e]=number[p2][total1];
+                                mark[p2][bordmark2]=mark[p2][e];
+                                number[p2][bordnumber2]=number[p2][e];
+                                mark[p2][e]=mark[p2][total2];
+                                number[p2][e]=number[p2][total2];
                                 break;
                             }else if(random2==1 && f<26){
-                                mark[p1][bordmark2]=mark[p2][f];
-                                number[p1][bordnumber2]=number[p2][f];
-                                mark[p2][f]=mark[p2][total1];
-                                number[p2][f]=number[p2][total1];
+                                mark[p2][bordmark2]=mark[p2][f];
+                                number[p2][bordnumber2]=number[p2][f];
+                                mark[p2][f]=mark[p2][total2];
+                                number[p2][f]=number[p2][total2];
                                 break;
                             }else if(random2==2 && g<26){
-                                mark[p1][bordmark2]=mark[p2][g];
-                                number[p1][bordnumber2]=number[p2][g];
-                                mark[p2][g]=mark[p2][total1];
-                                number[p2][g]=number[p2][total1];
+                                mark[p2][bordmark2]=mark[p2][g];
+                                number[p2][bordnumber2]=number[p2][g];
+                                mark[p2][g]=mark[p2][total2];
+                                number[p2][g]=number[p2][total2];
                                 break;
                             }else if(random2==3 && h<26){
-                                mark[p1][bordmark2]=mark[p2][h];
-                                number[p1][bordnumber2]=number[p2][h];
-                                mark[p2][h]=mark[p2][total1];
-                                number[p2][h]=number[p2][total1];
+                                mark[p2][bordmark2]=mark[p2][h];
+                                number[p2][bordnumber2]=number[p2][h];
+                                mark[p2][h]=mark[p2][total2];
+                                number[p2][h]=number[p2][total2];
                                 break;
                             }                 
                         }
@@ -208,8 +216,8 @@ int main(void){
                         number[p1][bordmark1]=number[p1][a];
                         total1+=1;
                         a=total1;        
-                }else if(   number[p2][bordnumber2]-1==mark[p1][a] ||
-                            number[p2][bordnumber2]+1==mark[p1][a] ){
+                }else if(   number[p2][bordnumber2]-1==number[p1][a] ||
+                            number[p2][bordnumber2]+1==number[p1][a] ){
                                 mark[p2][bordmark2]=mark[p1][a];
                                 number[p2][bordmark2]=number[p1][a];
                                 total1+=1;
@@ -412,9 +420,9 @@ void card(int m1,int n1,int m2,int n2,int m3,int n3,int m4,int n4){//プレイ�
         }
     }
     for(int i=0;i<4;i++){//ここがmarkの中身見てる
-        if(sirabemark[i]==0 || sirabemark[i]==1){
+        if(sirabemark[i]==1 || sirabemark[i]==2){
             co[i]=0;//黒
-        }else if(sirabemark[i]==2 || sirabemark[i]==3){
+        }else if(sirabemark[i]==3 || sirabemark[i]==4){
             co[i]=1;//赤
         }
     }
@@ -528,9 +536,9 @@ void yamahuda(int m1,int n1,int m2,int n2){
         }
     }
     for(int i=0;i<2;i++){
-        if(sirabemark[i]==0 || sirabemark[i]==1){
+        if(sirabemark[i]==1 || sirabemark[i]==2){
             co[i]=0;//黒
-        }else if(sirabemark[i]==2 || sirabemark[i]==3){
+        }else if(sirabemark[i]==3 || sirabemark[i]==4){
             co[i]=1;//赤
         }
     }
