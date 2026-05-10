@@ -4,17 +4,16 @@
 #include <unistd.h>//即時入力＆待機時間用
 #include <termios.h>//即時入力用
 #include <time.h>//0で判定とペナルティ実装
+#include "visual.h"
 
 
-#define BLACK 0
-#define RED 1
-#define KURO 30
-#define AKA 31
+#define BLACK 0  //judgeの手札から出すのがおかしい気がする(解決)
+#define RED 1   //仕様上左側が出せるのなら左側に出るが右側の方がおいしい場面がある
 #define SPACE 0
 #define GYOU 1
 #define KAIGYOU 2
-#define PENALTY_TIME 3//s
-#define DEFAULT_COOL_TIME 0.334//s
+#define PENALTY_TIME 6.5//s(だいたい)
+#define DEFAULT_COOL_TIME 0.42//s
 //あとですべてmainの中に入れる
 //trump_numに入れてしまうと後が面倒すぎるので違う変数作った方がよいかも
 typedef struct{//すべて c.を付ける（メイン内）呼び出し＆　作った関数内->
@@ -39,6 +38,7 @@ char getch(void);
 double now_time();
 void judge(card *c);
 void show(int);
+void show_repeat();
 void trump_def(card *c);
 void player_def(card *c);
 void field_card_display(card *c);
@@ -54,7 +54,7 @@ int cool_time(card *c,char);//クールタイムの条件式(押したキー)
 void win_judge(card *c);
 int field_number_judge(card *c);
 int hand_trump_card_change(card *c,int,int);//markとnumber
-void field_equal_judge(card *c,int);//クールタイム中にfieldのカードが変わっていないかを見る
+void field_equal_judge(card *c,int);//使ってないというか意味がない
 
 //スピードは四枚並べるのでmarkは一つあれば使いまわせるわけではない
 int main(void){//最後にAとKをつなげる
@@ -76,18 +76,6 @@ int main(void){//最後にAとKをつなげる
         judge(&c);
         }
     }
-
-
-void field_equal_judge(card *c,int a){//これいらんくなった説ある
-    for(int i = 0 ; i < 2 ; i++){
-        if( c->push_field_mark[i] == c->field_mark[i] && 
-            c->push_field_num[i] == c->field_num[i]){
-            c->penalty_sec[a] = PENALTY_TIME ; //ペナルティを増やす        
-            return ;
-        }
-    }
-    return ;
-}
 
 
 int cool_time(card *c,char a){//judgeの中に入れる
@@ -143,7 +131,7 @@ void player_def(card *c){
     printf("プレイヤー1は上側で左のカードから1~4\n");
     printf("プレイヤー2は下側で左のカードから7~0でカードを出します\n");
     printf("カードを並べます\n");
-    printf("ペナルティ時間は%dsです\n",PENALTY_TIME);
+    printf("ペナルティ時間は%lfsです\n",PENALTY_TIME);
 }
 
 void trump_shuffle(card *c){
@@ -195,35 +183,33 @@ void judge(card *c){
                 c->field_mark[i]=c->trump_mark[i][c->total[i]];
                 c->field_num[i]=c->trump_num[i][c->total[i]];
                 }
-            }
-            printf("3秒後に山札のカードが出されます\n");//ここは全部上記の条件式を満たす場合通るようにする
-            for(int i=3;i>0;i--){
-                printf("%d\n",i);
-                sleep(1);
-            }
+        }
+        printf("3秒後に山札のカードが出されます\n");//ここは全部上記の条件式を満たす場合通るようにする
+        for(int i=3;i>0;i--){
+            printf("%d\n",i);
+            sleep(1);
+        }
         }
 }
 
 void key_judge(card *c,int p, int n, int player_num){
     if(c->hand_card_number_box[p][n] != 0){//ここにあらたな手札を加えるまでする
         for (int i = 0 ; i < 2 ; i ++){
-            if( abs(c->field_num[i]-c->hand_card_number_box[p][n]) == 1 ){
-                c->field_mark[i]=c->hand_card_mark_box[p][n];
-                c->field_num[i]=c->hand_card_number_box[p][n];
+            if( abs(c->field_num[i]-c->hand_card_number_box[p][n]) == 1 ||
+                abs(c->field_num[i]-c->hand_card_number_box[p][n]) == 12 ){
+                c->field_mark[i] = c->hand_card_mark_box[p][n];
+                c->field_num[i] = c->hand_card_number_box[p][n];
                 c->total[p] += 1;
-                c->hand_card_mark_box[p][n]=c->trump_mark[p][c->total[p]];
-                c->hand_card_number_box[p][n]=c->trump_num[p][c->total[p]];
-                c->penalty_sec[player_num]=DEFAULT_COOL_TIME;
+                c->hand_card_mark_box[p][n] = c->trump_mark[p][c->total[p]];
+                c->hand_card_number_box[p][n] = c->trump_num[p][c->total[p]];
+                c->penalty_sec[player_num] = DEFAULT_COOL_TIME;
                 return ;
             }
         }
-        field_equal_judge(c,player_num);
         c->cool_end[player_num] =now_time() + c->penalty_sec[player_num];
     }else{
-        field_equal_judge(c,player_num);
         c->cool_end[player_num] =now_time() + c->penalty_sec[player_num];
     }
-
 }
 
 
@@ -236,8 +222,8 @@ void first_set_field(card *c){
 }
 
 void hand_card_first_send(card *c){
-    for(int i = 0 ; i < 2 ; i++){
-        for(int j = 0 ; j < 4 ; j++){
+    for(int i = 0; i < 2; i++){
+        for(int j = 0; j < 4; j++){
             c->hand_card_total_number[i][j] = j;
         }
     }
@@ -284,7 +270,7 @@ int field_number_judge(card *c){
 }
 
 int judge_insutition(int a, int b){//for関数でこのa,bを動かせばよい
-    if( abs(a - b) == 1 && b != 0){
+    if((abs(a - b) == 12 || abs(a - b) == 1 )&& b != 0){
         return 1 ;
     }else{
         return 0 ;
@@ -292,7 +278,7 @@ int judge_insutition(int a, int b){//for関数でこのa,bを動かせばよい
 }
 
 void from_hand_to_field(card *c,int p){
-    int random;
+    int random ;
     while(1){
         random = rand() % 4;
         if(c->hand_card_number_box[p][random] != 0){
@@ -300,8 +286,14 @@ void from_hand_to_field(card *c,int p){
             c->field_num[p]=c->hand_card_number_box[p][random];
             c->hand_card_mark_box[p][random]=c->trump_mark[p][c->total[p]];
             c->hand_card_number_box[p][random]=c->trump_num[p][c->total[p]];
-        break ;
+                break;
         }
+    }
+    if(p == c->player_color[1]){
+        return; 
+    }
+    if(c->total[1]>25){
+        from_hand_to_field(c,c->player_color[1]);
     }
 }
 
@@ -311,7 +303,7 @@ void push_key_judge(card *c,int a){//もうここで&cで呼び出している�
     }
     switch(a){
         case '1':
-        key_judge(c,c->player_color[0],0,0);//三つめはペナルティ案
+        key_judge(c,c->player_color[0],0,0);//三つめはペナルティ
         break;
         case '2':
         key_judge(c,c->player_color[0],1,0);
@@ -340,35 +332,13 @@ void push_key_judge(card *c,int a){//もうここで&cで呼び出している�
     }
 }
 
+void show_repeat(){
+    show(GYOU);
+    show(SPACE);
+}
 
 void card_display(card *c, int p){//プレイヤーごとに分かれているためプレイヤー
     //を判定するための変数は必要ない
-    int s;
-    char *suto[5]={"\x1b[47;37m ","\x1b[47;30m♣","\x1b[47;30m♠","\x1b[47;31m♦","\x1b[47;31m♥",}; //マーク分け
-    int co[4]={0};
-    char *kara={"\x1b[47;37m "};
-    char *change[4][13]={0};//文字列を入れるため
-    int serach_mark[4]={0};
-    int serach_number[4]={0};//四つの数字を覚えて代入する関数
-    int kioku[4][13]={0};//カード表示用
-    int color[2]={KURO,AKA};
-    const char*num_up[14]={"  ","A ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 ","10","J ","Q ","K "};
-    const char*num_down[14]={"  "," A"," 2"," 3"," 4"," 5"," 6"," 7"," 8"," 9","10"," J"," Q"," K"};
-    int hyoji[13][13]={
-                {0,0,0,0,0,0,1,0,0,0,0,0,0},
-                {0,0,0,1,0,0,0,0,0,1,0,0,0},
-                {0,0,0,1,0,0,1,0,0,1,0,0,0},
-                {1,1,0,0,0,0,0,0,0,0,0,1,1},
-                {1,1,0,0,0,0,1,0,0,0,0,1,1},
-                {1,1,0,0,0,1,0,1,0,0,0,1,1},
-                {1,1,0,0,0,1,1,1,0,0,0,1,1},
-                {1,1,0,1,0,1,0,1,0,1,0,1,1},
-                {0,0,1,1,1,1,1,1,1,1,1,0,0},
-                {1,1,1,0,1,1,0,1,1,0,1,1,1},//デザイン問題
-                {1,1,1,0,1,1,1,1,1,0,1,1,1},
-                {1,1,1,1,1,1,0,1,1,1,1,1,1},
-                {1,1,1,1,1,1,1,1,1,1,1,1,1},
-            };//nullの場合すべてkiokuが0になるから
     for(int i=0; i < 4 ; i++){
         serach_mark[i]=c->hand_card_mark_box[p][i];//これは最初から使える
         serach_number[i]=c->hand_card_number_box[p][i];
@@ -407,50 +377,43 @@ void card_display(card *c, int p){//プレイヤーごとに分かれている�
     for(int i=0;i<4;i++){
         show(GYOU);
         printf("\x1b[47;%dm %s         \x1b[0m",color[co[i]],num_up[serach_number[i]]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     for(int i=0;i<4;i++){
         show(GYOU);
         printf("\x1b[47;%dm %s  %s   %s   \x1b[0m",color[co[i]],suto[serach_mark[i]],change[i][0],change[i][1]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     for(int i=0;i<4;i++){
         show(GYOU);
         printf("\x1b[47;%dm    %s %s %s   \x1b[0m",color[co[i]],change[i][2],change[i][3],change[i][4]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     for(int i=0;i<4;i++){
         show(GYOU);
         printf("\x1b[47;%dm    %s %s %s   \x1b[0m",color[co[i]],change[i][5],change[i][6],change[i][7]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     for(int i=0;i<4;i++){
         show(GYOU);
         printf("\x1b[47;%dm    %s %s %s   \x1b[0m",color[co[i]],change[i][8],change[i][9],change[i][10]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     for(int i=0;i<4;i++){
         show(GYOU);
         printf("\x1b[47;%dm    %s   %s  %s\x1b[0m",color[co[i]],change[i][11],change[i][12],suto[serach_mark[i]]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }   
     show(KAIGYOU);
     for(int i=0;i<4;i++){
         show(GYOU);
         printf("\x1b[47;%dm          %s\x1b[0m",color[co[i]],num_down[serach_number[i]]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     for(int i=0;i<4;i++){
@@ -461,32 +424,7 @@ void card_display(card *c, int p){//プレイヤーごとに分かれている�
 } 
 
 void field_card_display(card *c){
-    char *suto[5]={"\x1b[47;37m ","\x1b[47;30m♣","\x1b[47;30m♠","\x1b[47;31m♦","\x1b[47;31m♥",}; //マーク分け
-    int s;
-    int co[2]={0};
-    char *kara={"\x1b[47;37m "};
-    char *change[2][13]={0};
-    int serach_mark[2]={0};
-    int serach_number[2]={0};//四つの数字を覚えて代入する関数
-    int kioku[2][13]={0};//カード表示用
-    int color[2]={KURO,AKA};
-    const char*num_up[14]={"  ","A ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 ","10","J ","Q ","K "};
-    const char*num_down[14]={"  "," A"," 2"," 3"," 4"," 5"," 6"," 7"," 8"," 9","10"," J"," Q"," K"};
-    int hyoji[13][13]={
-                {0,0,0,0,0,0,1,0,0,0,0,0,0},
-                {0,0,0,1,0,0,0,0,0,1,0,0,0},
-                {0,0,0,1,0,0,1,0,0,1,0,0,0},
-                {1,1,0,0,0,0,0,0,0,0,0,1,1},
-                {1,1,0,0,0,0,1,0,0,0,0,1,1},
-                {1,1,0,0,0,1,0,1,0,0,0,1,1},
-                {1,1,0,0,0,1,1,1,0,0,0,1,1},
-                {1,1,0,1,0,1,0,1,0,1,0,1,1},
-                {0,0,1,1,1,1,1,1,1,1,1,0,0},
-                {1,1,1,0,1,1,0,1,1,0,1,1,1},//デザイン問題
-                {1,1,1,0,1,1,1,1,1,0,1,1,1},
-                {1,1,1,1,1,1,0,1,1,1,1,1,1},
-                {1,1,1,1,1,1,1,1,1,1,1,1,1},
-            };//nullの場合すべてkiokuが0になるから
+
     for(int i = 0 ; i < 2 ; i++){
         serach_mark[i]=c->field_mark[i];//完了
         serach_number[i]=c->field_num[i];
@@ -527,56 +465,49 @@ void field_card_display(card *c){
     for(int i=0;i<2;i++){
         show(GYOU);
         printf("\x1b[47;%dm %s         \x1b[0m",color[co[i]],num_up[serach_number[i]]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     printf("                    ");
     for(int i=0;i<2;i++){
         show(GYOU);
         printf("\x1b[47;%dm %s  %s   %s   \x1b[0m",color[co[i]],suto[serach_mark[i]],change[i][0],change[i][1]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     printf("                    ");
     for(int i=0;i<2;i++){
         show(GYOU);
         printf("\x1b[47;%dm    %s %s %s   \x1b[0m",color[co[i]],change[i][2],change[i][3],change[i][4]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     printf("                    ");
     for(int i=0;i<2;i++){
         show(GYOU);
         printf("\x1b[47;%dm    %s %s %s   \x1b[0m",color[co[i]],change[i][5],change[i][6],change[i][7]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     printf("                    ");
     for(int i=0;i<2;i++){
         show(GYOU);
         printf("\x1b[47;%dm    %s %s %s   \x1b[0m",color[co[i]],change[i][8],change[i][9],change[i][10]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     printf("                    ");
     for(int i=0;i<2;i++){
         show(GYOU);
         printf("\x1b[47;%dm    %s   %s  %s\x1b[0m",color[co[i]],change[i][11],change[i][12],suto[serach_mark[i]]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }   
     show(KAIGYOU);
     printf("                    ");
     for(int i=0;i<2;i++){
         show(GYOU);
         printf("\x1b[47;%dm          %s\x1b[0m",color[co[i]],num_down[serach_number[i]]);
-        show(GYOU);
-        show(SPACE);
+        show_repeat();
     }
     show(KAIGYOU);
     printf("                    ");
@@ -606,7 +537,7 @@ char getch(void) {
 double now_time(){
     struct timespec ts;
 
-    clock_gettime(CLOCK_MONOTONIC, &ts);
+    clock_gettime(CLOCK_MONOTONIC, &ts);//現在時間
 
-    return ts.tv_sec + ts.tv_nsec / 1000000000.0;
+    return ts.tv_sec + ts.tv_nsec / 1000000000.0; //秒＋ナノ秒（後ろで小数点）
 }
