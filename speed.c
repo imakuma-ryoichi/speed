@@ -1,6 +1,6 @@
-//他ファイル上に改善しているときに役割別に構造体を作ったときなにをどこに置くのが最適かかなりムズイ所感でした
+//他ファイル上に改善しているときに役割別に構造体を作ったときなにをどこに置くのが最適かかなりムズイ所感
 //ここミスると読みづらくてしゃばくなりそうな点でもありつかむのが難しいところでしたね
-//あと改善段階の時は前よりは知識もつきだして疑問点が多くなるんですよねずっとAIとぶつけてました
+//あとむやみに二次元にしない大切さがわかりました　あとカードの縦の線の表示が不安定なんですよね
 #include <stdio.h>  //add status comitt push
 #include <string.h> //
 #include <stdlib.h>
@@ -64,9 +64,9 @@ int main(void){//最後にAとKをつなげる
     card c = {0};//初期化
     trump_def(&c);   
     trump_shuffle(&c);
-    player_def(&c);//前のカード消すようにする
-    first_set_field(&c);
-    hand_card_first_send(&c);
+    player_def(&c);//前のカード消すようにする//
+    first_set_field(&c);//
+    hand_card_first_send(&c);//
     card_display(&c,0);
     card_display(&c,1);
     ready_sign();

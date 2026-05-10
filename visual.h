@@ -2,7 +2,6 @@
 #define _VISUAL_H
 
 #include <stdio.h>
-#include "visual.h"
 
 #define KURO 30 //eg J 9  (3,4,Q,10)さきに１０だすとひだりにでてしまう
 #define AKA 31
